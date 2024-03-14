@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>폰트입력</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Gowun+Batang&display=swap"
+        rel="stylesheet">
+    <style>
+      
+
+        .mytitle {
+            font-family: "Gowun Batang", serif;
+            font-weight: 400;
+            font-style: normal;
+            width: 300px;
+            height: 200px;
+
+
+            color: white;
+            text-align: center;
+            padding-top: 30px;
+            border-radius: 8px;
+
+            background-image: url('https://www.ancient-origins.net/sites/default/files/field/image/Agesilaus-II-cover.jpg');
+            background-position: center;
+            background-size: cover;
+
+        }
+
+        .wrap {
+            background-color: green;
+            width: 300px;
+            margin: 50px auto 0px auto;
+            /* 위에 마진은 위오른쪽 아래 왼쪽이 해당 오토는 끝까지 밀어버리는것 */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <div class="mytitle">
+            <h1>로그인 페이지</h1>
+            <h5>아이디, 비밀번호를 입력해주세요</h5>
+        </div>
+        <p>
+            아이디: <input type="text" />
+        </p>
+        비밀번호: <input type="text" />
+        <p>
+            <button> 로그인</button>
+        </p>
+    </div>
+
+</body>
+
+</html>
