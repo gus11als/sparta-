@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내가 해야 할일(to-do-list)</title>
+    <link rel="icon" href="https://img.icons8.com/?size=80&id=kpnj7YrvdLab&format=png" type="image/png">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Helvetica+Neue&display=swap" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+
+    <style>
+        /* h1 스타일 */
+        .main {
+            font-size: 70px;
+            text-align: center;
+            font-family: "Nanum Pen Script", cursive;
+            background-image: url('https://www.waveon.io/_ipx/f_webp,w_700,size_100vw+md:700px/static/img/blog/_posting/ilya-pavlov-OqtafYT5kTw-unsplash.jpg');
+            background-position: center;
+            background-size: cover;
+            height: 200px;
+            color: white;
+            padding-top: 40px;
+        }
+
+        .ex {
+            font-size: 70px;
+            font-family: "Nanum Pen Script", cursive;
+            text-align: right;
+            color: black;
+            font-size: 40px;
+        }
+
+        body {
+            background-color: #FFE8AD;
+        }
+
+        body-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: calc(100vh - 200px);
+            size: 100px;
+        }
+
+        /* 입력창 스타일 */
+        .write {
+            margin-top: 70px;
+            width: 300px;
+            font-size: 24px;
+        }
+
+        /* 등록버튼(add) 스타일 */
+        .button {
+            margin-top: 70px;
+            font-size: 24px;
+        }
+
+        /* 투두 리스트 CSS */
+        .completed {
+            text-decoration: line-through;
+        }
+
+        .to-dos {
+            margin-top: 80px;
+            font-size: 44px;
+            list-style-type: none;
+            /* 리스트 스타일 제거 */
+        }
+
+        .checkbox {
+            flex: none;
+            /* 체크박스 크기를 고정 */
+            margin-right: 10px;
+            /* 체크박스와 텍스트 사이의 간격 조절 */
+            align-self: center;
+            /* 수직 정렬을 위해 사용 */
+            width: 30px;
+            /* 체크박스의 너비 조절 */
+            height: 30px;
+            /* 체크박스의 높이 조절 */
+        }
+
+        /* 리스트 박스 스타일 */
+        .todo-item {
+            background-color: rgba(255, 255, 255, 0.8);
+            /* 배경색 지정 */
+            border-radius: 20px;
+            /* 테두리 모서리 둥글게 만들기 */
+            padding: 10px;
+            /* 내부 여백 설정 */
+            margin-bottom: 10px;
+            /* 하단 여백 설정 */
+            box-shadow: 0 2px px rgba(0, 0, 0, 0.1);
+            /* 그림자 효과 추가 */
+
+        }
+
+        /* 수정버튼 스타일 */
+        .edit-btn {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            float: right;
+            margin-top: 10px;
+            transition-duration: 0.4s;
+            cursor: pointer;
+        }
+
+        .edit-btn:hover {
+            background-color: #45a049;
+            /* Darker green on hover */
+        }
+    </style>
+    <script type="module">
+        // Firebase SDK 라이브러리 가져오기
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+        // Firebase 구성 정보 설정
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyCBJU7XERl_E-U5Mt8986wpY04hds_uFtA",
+            authDomain: "sparta-efe13.firebaseapp.com",
+            projectId: "sparta-efe13",
+            storageBucket: "sparta-efe13.appspot.com",
+            messagingSenderId: "120539111338",
+            appId: "1:120539111338:web:cc3315d8f6fcb8edcad5d3",
+            measurementId: "G-M6G7NZXJRL"
+        };
+
+        // Firebase 인스턴스 초기화
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 데이터 가져오기 및 화면에 렌더링하기
+        $(document).ready(async function () {
+            try {
+                const querySnapshot = await getDocs(query(collection(db, "todolist"), orderBy("timestamp", "desc"))); // Add orderBy to sort by timestamp
+                const documents = [];
+                querySnapshot.forEach(doc => {
+                    documents.push(doc); // 문서를 배열에 추가
+                });
+
+                // 문서를 서버에서 생성된 순서로 정렬하여 리스트 생성
+                documents.forEach(doc => {
+                    var listItem = $('<li>').addClass('todo-item').data('doc-id', doc.id); // Firestore 문서 ID를 data 속성에 저장
+                    var checkbox = $('<input>').attr('type', 'checkbox').addClass('checkbox');
+                    var textSpan = $('<span>').text(doc.data().input).addClass('todo-text');
+                    var editButton = $('<button>').text('수정').addClass('edit-btn btn btn-secondary btn-sm');
+                    listItem.append(checkbox, textSpan, editButton);
+                    $('#toDoList').prepend(listItem); // 맨 위에 추가하기 위해 prepend 사용
+
+                    // 데이터에서 가져온 'completed' 상태에 따라 체크박스 상태 변경 체크해둔상태면 재접속해도 체크가 되있음
+                    if (doc.data().completed) {
+                        checkbox.prop('checked', true);
+                        listItem.addClass('completed');
+                    }
+                });
+            } catch (error) {
+                console.error("firebase 에러", error);
+            }
+        });
+
+        // 할 일 추가하기
+        $("#addToDo").click(async function () {
+            var inputText = $('#inputField').val().trim();
+
+            if (!inputText) {
+                alert('내용을 입력해 주세요!');
+                return;
+            }
+
+            let docData = {
+                input: inputText,
+                completed: false, // 추가된 부분: 'completed' 상태를 기본적으로 false로 설정
+                timestamp: new Date().toISOString() // 서버에 시간이 같이 들어감
+            };
+
+            try {
+                await addDoc(collection(db, "todolist"), docData);
+                console.log("서버에 성공적으로 업로드");
+                window.location.reload();
+            } catch (error) {
+                console.error("firebase 연결문제", error);
+            }
+        });
+
+        // 체크박스 클릭하여 완료 상태 변경 및 Firestore에 업데이트
+        $(document).on('click', '.checkbox', async function () {
+            var listItem = $(this).parent();
+            listItem.toggleClass('completed'); // 리스트에 completed 클래스 토글
+
+            // Firestore에서 해당 문서를 찾아서 'completed' 필드 업데이트
+            var text = listItem.find('.todo-text').text().trim(); // 리스트 아이템의 텍스트 가져오기
+            const querySnapshot = await getDocs(collection(db, "todolist"));
+            querySnapshot.forEach(async doc => {
+                if (doc.data().input === text) {
+                    try {
+                        await updateDoc(doc.ref, { completed: listItem.hasClass('completed') });
+                        console.log("성공적으로 완료상태 변경");
+                    } catch (error) {
+                        console.error("firebase 연결문제", error);
+                    }
+                }
+            });
+        });
+
+        // 리스트 더블 클릭하여 삭제
+        $(document).on('dblclick', '.todo-item', async function () {
+            var text = $(this).find('.todo-text').text().trim(); // 리스트 아이템의 텍스트 가져오기
+            const querySnapshot = await getDocs(query(collection(db, "todolist"), where("input", "==", text)));
+            querySnapshot.forEach(async doc => {
+                try {
+                    await deleteDoc(doc.ref);
+                    console.log("제거완료");
+                    $(this).remove(); // 리스트 아이템 제거
+                } catch (error) {
+                    console.error("firebase 연결문제", error);
+                }
+            });
+        });
+
+        //수정버튼 추가
+        $(document).on('click', '.edit-btn', function () {
+            var listItem = $(this).closest('.todo-item'); // 수정 버튼을 포함하는 항목 찾기
+            var textSpan = listItem.find('.todo-text');
+            var newText = prompt("수정할 내용을 입력하세요.", textSpan.text().trim()); // 수정할 내용 입력 받기
+            if (newText !== null) { // 수정 내용이 null이 아닌 경우에만 처리
+                if (newText.trim() !== '') { // 수정 내용이 비어 있지 않은 경우
+                    textSpan.text(newText); // 텍스트 업데이트
+
+                    // 항목의 Firestore 문서 ID 가져오기
+                    var docId = listItem.data('doc-id');
+
+                    // 항목의 Firestore 문서 업데이트
+                    updateDoc(doc(db, "todolist", docId), { input: newText })
+                        .then(() => {
+                            console.log("수정성공");
+                        })
+                        .catch((error) => {
+                            console.error("firebase 연결문제", error);
+                        });
+                } else { // 수정 내용이 비어 있는 경우
+                    alert("내용을 입력해 주세요!"); // 알림 창 표시
+                }
+            }
+        });
+    </script>
+
+</head>
+
+<body>
+    <h1 class="main">my to do list!!</h1>
+    <p class="ex">더블클릭시 삭제</p>
+    <div class="container body-content">
+        <div class="row justify-content-center">
+            <div class="col-auto">
+                <input id="inputField" class="write form-control" type="text" placeholder="해야 할일을 입력하세요.">
+            </div>
+            <div class="col-auto">
+                <button id="addToDo" type="button" class="button btn btn-primary">ADD</button>
+            </div>
+        </div>
+        <div class="to-dos" id="toDoList"> </div>
+    </div>
+</body>
+
+</html>
