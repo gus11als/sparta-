@@ -148,7 +148,7 @@
         // 데이터 가져오기 및 화면에 렌더링하기
         $(document).ready(async function () {
             try {
-                const querySnapshot = await getDocs(query(collection(db, "todolist"), orderBy("timestamp", "desc"))); // Add orderBy to sort by timestamp
+                const querySnapshot = await getDocs(query(collection(db, "todolist"), orderBy("timestamp", "desc"))); 
                 const documents = [];
                 querySnapshot.forEach(doc => {
                     documents.push(doc); // 문서를 배열에 추가
